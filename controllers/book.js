@@ -1,3 +1,4 @@
+const { error } = require('console');
 const Book = require('../models/Book');
 const fs = require('fs');
 
@@ -94,3 +95,43 @@ exports.createBook = (req, res, next) => {
           res.status(500).json({ error });
       });
 };
+
+
+
+// Note moyenne d'un livre
+exports.ratingBook = (req, res, next) => {
+  Book.findOne({ _id: req.params.id })
+    .then(book => {
+      book.ratings.push({
+        userId: req.auth.userId,
+        grade: req.body.rating
+      });
+
+      let totalRating = book.ratings.reduce((acc, rating) => acc + rating.grade, 0);
+
+      // Calcul de la moyenne
+      book.averageRating = totalRating / book.ratings.length;
+      console.log(book.averageRating);
+
+      return book.save();
+    })
+    .then(book => {
+      res.json(book);
+    })
+    .catch(err => {
+      res.status(401).json({ err });
+    });
+};
+
+// Tableau 3 meilleurs livres
+exports.getBestRatingBooks = (req, res, next) => {
+  Book.find()
+  .then(books => {
+    books.sort((a,b) =>b.averageRating - a.averageRating);
+    const bestRatedBooks = books.slice(0,3);
+
+    res.status(200).json(bestRatedBooks)})
+    .catch(error =>
+      res.status(404).json ({error}))
+  };
+

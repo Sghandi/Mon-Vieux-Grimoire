@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// Schéma d'un book
+// Book model
 const bookSchema = mongoose.Schema({
     userId: {type: String, required: true },
     title: { type: String, required: true },
@@ -11,11 +11,11 @@ const bookSchema = mongoose.Schema({
     ratings: [
         {
         userId: { type: String, required: true },
-        grade: { type: Number, required: true },
+        grade: { type: Number, required: true, min:0, max:5 },
         },
     ],
-    averageRating: { type: Number },
+    averageRating: { type: Number, default:0},
 });
 
-// exportation du modèle
+// model exportation
 module.exports = mongoose.model('Book', bookSchema);
